@@ -132,15 +132,19 @@ def main():
 	}
 	clear()
 	board_length = starting_measurements()
-	# calculate number of boards required
+
 	proceed = True
 	while proceed:
+		# select dimensional lumber for calculation
 		board_type = dimension_selection()
+		# calculate number of boards required
 		number_of_boards, extra_cuts = stock_length_calculator(board_length)
+		# add boards to list
 		project_boards_cuts = add_to_list(project_boards_cuts, board_type, number_of_boards, extra_cuts)
 		want_to_proceed = input(f"Do you have any more boards to calculate? [y/n]\n")
 		if want_to_proceed == "n":
 			proceed = False
+	# print final project needs
 	pprint.pp(project_boards_cuts)
 	
 
@@ -149,3 +153,4 @@ if __name__ == "__main__":
 	
 	
 # TODO add check for if length_of_cut in remnants - remove remnant, do not add to number_of_boards
+# TODO add conversion at end for metric <> imperial

@@ -147,3 +147,5 @@ def main():
 if __name__ == "__main__":
 	main()
 	
+	
+# TODO add check for if length_of_cut in remnants - remove remnant, do not add to number_of_boards

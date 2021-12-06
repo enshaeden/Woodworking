@@ -47,7 +47,7 @@ Which board dimension are you using?
 		return board_type
 
 
-def stock_length_calculator(board_length):
+def stock_length_calculator(project_boards_cuts, board_type, board_length):
 	minimum_boards = 1
 	remnants = []
 	# prompt for length of cut
@@ -61,16 +61,22 @@ def stock_length_calculator(board_length):
 	# creates a calculable variable for each board
 	cut_board = board_length
 	for i in range(1, number_of_cuts):
-		# subtract the length of the cut from the calcuable board
-		cut_board -= length_of_cut
-		# if the next cut is larger than the remnant of calcuable board
-		if length_of_cut > cut_board:
-			minimum_boards += 1
-			# add the remainder of the caluable board to list of remnants
-			remnants.append(cut_board)
-			# set the calcuable board back to the minimum board length
-			cut_board = board_length
-	return minimum_boards, remnants
+		# make sure there are no remnants from previous cuts that can be used instead
+		spare_checker = remnant_check(project_boards_cuts, board_type, length_of_cut)
+		if spare_checker == "y":
+			print("removing remnant")     # remove after testing
+			remove_from_list(project_boards_cuts, board_type, length_of_cut)
+		else:
+			# subtract the length of the cut from the calcuable board
+			cut_board -= length_of_cut
+			# if the next cut is larger than the remnant of calcuable board
+			if length_of_cut > cut_board:
+				minimum_boards += 1
+				# add the remainder of the caluable board to list of remnants
+				remnants.append(cut_board)
+				# set the calcuable board back to the minimum board length
+				cut_board = board_length
+	return minimum_boards, remnants, project_boards_cuts
 		
 
 def add_to_list(project_boards_cuts, board_type, number_of_boards, extra_cuts):
@@ -104,6 +110,56 @@ def add_to_list(project_boards_cuts, board_type, number_of_boards, extra_cuts):
 	return project_boards_cuts
 
 
+def remove_from_list(project_boards_cuts, board_type, length_of_cut):
+	if board_type == "1":
+		project_boards_cuts['remnants']['onebytwo'].remove(length_of_cut)
+	elif board_type == "2":
+		project_boards_cuts['remnants']['onebythree'].remove(length_of_cut)
+	elif board_type == "3":
+		project_boards_cuts['remnants']['onebyfour'].remove(length_of_cut)
+	elif board_type == "4":
+		project_boards_cuts['remnants']['twobyfour'].remove(length_of_cut)
+	elif board_type == "5":
+		project_boards_cuts['remnants']['twobysix'].remove(length_of_cut)
+	elif board_type == "6":
+		project_boards_cuts['remnants']['twobyeight'].remove(length_of_cut)
+	elif board_type == "7":
+		project_boards_cuts['remnants']['twobyten'].remove(length_of_cut)
+	elif board_type == "8":
+		project_boards_cuts['remnants']['twobytwelve'].remove(length_of_cut)
+	elif board_type == "9":
+		project_boards_cuts['remnants']['fourbyfour'].remove(length_of_cut)
+	return project_boards_cuts
+
+
+def remnant_check(project_boards_cuts, board_type, length_of_cut):
+	# set board type from numerical value to dict key value
+	if board_type == "1":
+		board_type = "onebytwo"
+	elif board_type == "2":
+		board_type = "onebythre"
+	elif board_type == "3":
+		board_type = "onebyfour"
+	elif board_type == "4":
+		board_type = "twobyfour"
+	elif board_type == "5":
+		board_type = "twobysix"
+	elif board_type == "6":
+		board_type = "twobyeight"
+	elif board_type == "7":
+		board_type = "twobyten"
+	elif board_type == "8":
+		board_type = "twobytwelve"
+	elif board_type == "9":
+		board_type = "fourbyfour"
+	# check if a remnant exists
+	if length_of_cut in project_boards_cuts['remnants'][board_type]:
+		print("remnant found")     # remove after testing
+		remnant_check = "y"
+	else:
+		remnant_check = "n"
+	return remnant_check
+
 		
 def main():
 	project_boards_cuts = {
@@ -132,13 +188,12 @@ def main():
 	}
 	clear()
 	board_length = starting_measurements()
-
 	proceed = True
 	while proceed:
 		# select dimensional lumber for calculation
 		board_type = dimension_selection()
 		# calculate number of boards required
-		number_of_boards, extra_cuts = stock_length_calculator(board_length)
+		number_of_boards, extra_cuts, project_boards_cuts = stock_length_calculator(project_boards_cuts, board_type, board_length)
 		# add boards to list
 		project_boards_cuts = add_to_list(project_boards_cuts, board_type, number_of_boards, extra_cuts)
 		want_to_proceed = input(f"Do you have any more boards to calculate? [y/n]\n")
@@ -152,5 +207,6 @@ if __name__ == "__main__":
 	main()
 	
 	
-# TODO add check for if length_of_cut in remnants - remove remnant, do not add to number_of_boards
-# TODO add conversion at end for metric <> imperial
+# TODO figure out why remnant_check always leaves one spare
+# TODO create GUI interface
+# TODO create .run

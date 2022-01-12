@@ -63,10 +63,12 @@ def stock_length_calculator(project_boards_cuts, board_type, board_length):
 	for i in range(1, number_of_cuts):
 		# make sure there are no remnants from previous cuts that can be used instead
 		spare_checker = remnant_check(project_boards_cuts, board_type, length_of_cut)
-		if spare_checker == "y":
+		if spare_checker:
 			print("removing remnant")     # remove after testing
+			print(f"removing 1 value from minimum boards")     # remove after testing
+			minimum_boards -= 1
 			remove_from_list(project_boards_cuts, board_type, length_of_cut)
-		else:
+		elif spare_checker == False:
 			# subtract the length of the cut from the calcuable board
 			cut_board -= length_of_cut
 			# if the next cut is larger than the remnant of calcuable board
@@ -153,12 +155,19 @@ def remnant_check(project_boards_cuts, board_type, length_of_cut):
 	elif board_type == "9":
 		board_type = "fourbyfour"
 	# check if a remnant exists
-	if length_of_cut in project_boards_cuts['remnants'][board_type]:
-		print("remnant found")     # remove after testing
-		remnant_check = "y"
-	else:
-		remnant_check = "n"
-	return remnant_check
+	print(length_of_cut)
+	print(board_type)
+	print(project_boards_cuts['remnants'][board_type])
+	remnant_found = False
+	for board in project_boards_cuts['remnants'][board_type]:
+		print(f"{board}")
+		if length_of_cut == board:
+			print("remnant found")     # remove after testing
+			print(len(project_boards_cuts['remnants'][board_type]))     # remove after testing
+			remnant_found = True
+		else:
+			print(f"no remnants found")
+	return remnant_found
 
 		
 def main():
@@ -207,6 +216,6 @@ if __name__ == "__main__":
 	main()
 	
 	
-# TODO figure out why remnant_check always leaves one spare
+# TODO figure out how to check remnant without [] because 24.0 != [[24.0]]
 # TODO create GUI interface
 # TODO create .run
